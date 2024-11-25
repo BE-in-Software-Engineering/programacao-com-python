@@ -1,6 +1,4 @@
 # 9. Formatar Número de Telefone
-
-
 def format_phone_number():
     phone_number = input("Digite um número de telefone (11 dígitos): ").strip()
 
