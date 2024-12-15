@@ -15,11 +15,14 @@ def display_customer_report(customers):
 
     total_sales = 0
     customer_report = []
+    customer_id = 1
 
     for customer in customers:
         total_purchase = sum(item[4] for item in customer)
-        customer_report.append([customer[0], f"R$ {total_purchase:.2f}"])
+
+        customer_report.append([f"Cliente {customer_id}", f"R$ {total_purchase:.2f}"])
         total_sales += total_purchase
+        customer_id += 1
 
     print(tabulate(customer_report, headers=["Cliente", "Total"], tablefmt="grid"))
     print(f"\nTotal de vendas: R$ {total_sales:.2f}")
@@ -32,7 +35,7 @@ def display_out_of_stock_products(product_list):
     if out_of_stock_products:
         print("\nProdutos sem estoque:")
         for product in out_of_stock_products:
-            print(f"{product[1]} (ID {product[0]})")
+            print(f"{product[1]} (ID {product[0]})\n")
 
 
 def displays_report_cash_manager(customers, product_list, csv_file):
@@ -40,7 +43,6 @@ def displays_report_cash_manager(customers, product_list, csv_file):
 
     current_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     print(f"\nFechamento do caixa\nData: {current_date}\n")
-
     display_customer_report(customers)
 
     display_out_of_stock_products(product_list)

@@ -7,7 +7,6 @@ import os
 from modules.products import (
     load_products,
     display_products,
-    save_products,
 )
 from modules.service import start_service
 from modules.utils import displays_report_cash_manager
