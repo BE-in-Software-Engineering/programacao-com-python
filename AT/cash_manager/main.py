@@ -4,12 +4,9 @@ main.py - Arquivo principal (execução do programa)
 """
 
 import os
-from modules.products import (
-    load_products,
-    display_products,
-)
+from modules.products import load_products
 from modules.service import start_service
-from modules.utils import displays_report_cash_manager
+from modules.utils import generate_cashier_report
 
 
 def main():
@@ -19,20 +16,20 @@ def main():
     print("\nCaixa aberto")
 
     customers = []
-    customer_count = 1
+    customer_id = 1
 
     while True:
-        print(f"\n[1] Iniciar atendimento do 'cliente {customer_count}'")
+        print(f"\n[1] Iniciar atendimento do 'cliente {customer_id}'")
         print("[2] Finalizar atendimento")
         option = input("Escolha uma opção: ")
 
         if option == "1":
-            customer = start_service(product_list, customer_count)
+            customer = start_service(product_list, customer_id)
             if customer:
                 customers.append(customer)
-                customer_count += 1
+                customer_id += 1
         elif option == "2":
-            displays_report_cash_manager(customers, product_list, csv_file)
+            generate_cashier_report(customers, product_list, csv_file)
             print("\nCaixa fechado com sucesso!")
             break
         else:

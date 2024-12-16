@@ -1,10 +1,16 @@
 """
-modules/products.py - Funções relacionadas a manipulação da lista de produtos (leitura, gravação e exibição)
+modules/products.py - Funções relacionadas a manipulação da lista de produtos (leitura e gravação )
     
 """
 
 import csv
-from tabulate import tabulate
+from .common import display_error_message
+from .constants import (
+    PRODUCT_ID_INDEX,
+    PRODUCT_NAME_INDEX,
+    PRODUCT_QUANTITY_INDEX,
+    PRODUCT_PRICE_INDEX,
+)
 
 
 def load_products(csv_file):
@@ -24,7 +30,6 @@ def load_products(csv_file):
         - FileNotFoundError: Se o arquivo não for encontrado.
         - Exception: Para outros erros ao processar o arquivo.
     """
-
     product_list = []
     try:
         with open(csv_file, "r", encoding="utf-8") as file:
@@ -32,40 +37,36 @@ def load_products(csv_file):
 
             for row in reader:
                 if len(row) == 4:
-                    product = [int(row[0]), row[1], int(row[2]), float(row[3])]
-                    product_list.append(product)
+                    try:
+                        product = [
+                            int(row[PRODUCT_ID_INDEX]),
+                            row[PRODUCT_NAME_INDEX],
+                            int(row[PRODUCT_QUANTITY_INDEX]),
+                            float(row[PRODUCT_PRICE_INDEX]),
+                        ]
+
+                        if product[PRODUCT_PRICE_INDEX] < 0:
+                            print(
+                                f"Preço inválido para o produto '{product[PRODUCT_NAME_INDEX]}' (ID {product[PRODUCT_ID_INDEX]}). Preço deve ser maior ou igual a zero."
+                            )
+                            continue
+
+                        product_list.append(product)
+                    except ValueError:
+                        display_error_message(
+                            f"Dados inválidos para o produto '{row[PRODUCT_NAME_INDEX]}' (ID {row[PRODUCT_ID_INDEX]}). Verifique os valores."
+                        )
                 else:
-                    print(f"Linha inválida no arquivo: {row}")
+                    display_error_message(f"Linha inválida no arquivo: {row}")
         print(f"{len(product_list)} produtos carregados com sucesso!")
     except FileNotFoundError:
-        print(f"Erro: Arquivo '{csv_file}' não encontrado. Verifique o caminho.")
+        display_error_message(
+            f"Arquivo '{csv_file}' não encontrado. Verifique o caminho."
+        )
     except Exception as e:
-        print(f"Erro inesperado ao carregar produtos: {e}")
+        display_error_message(f"Erro inesperado ao carregar produtos: {e}")
 
     return product_list
-
-
-def display_products(product_list):
-    """
-    Exibe a lista de produtos em formato tabular.
-
-    Args:
-        product_list (list): Lista de produtos a ser exibida.
-    """
-    if product_list:
-        table = [
-            [product[0], product[1], product[2], f"R$ {product[3]:.2f}"]
-            for product in product_list
-        ]
-        print(
-            tabulate(
-                table,
-                headers=["Item (ID)", "Produto", "Quant.", "Preço"],
-                tablefmt="grid",
-            )
-        )
-    else:
-        print("Nenhum produto em estoque.")
 
 
 def save_products(csv_file, product_list):
@@ -84,6 +85,11 @@ def save_products(csv_file, product_list):
         - PermissionError: Se não houver permissão para gravar no arquivo.
         - Exception: Para outros erros ao salvar o arquivo.
     """
+
+    if not product_list:
+        print("Nenhum produto para salvar.")
+        return
+
     try:
         with open(csv_file, mode="w", encoding="utf-8", newline="") as file:
             writer = csv.writer(file)
@@ -93,8 +99,10 @@ def save_products(csv_file, product_list):
         print(f"Produtos salvos com sucesso no arquivo: '{csv_file}'.")
 
     except FileNotFoundError:
-        print(f"Erro: Arquivo '{csv_file}' não encontrado. Verifique o caminho.")
+        display_error_message(
+            f"Arquivo '{csv_file}' não encontrado. Verifique o caminho."
+        )
     except PermissionError:
-        print(f"Erro: Permissão negada para gravar no arquivo '{csv_file}'.")
+        display_error_message(f"Permissão negada para gravar no arquivo '{csv_file}'.")
     except Exception as e:
-        print(f"Erro ao salvar os produtos: {e}")
+        display_error_message(f"Não foi possível salvar os produtos: {e}.")

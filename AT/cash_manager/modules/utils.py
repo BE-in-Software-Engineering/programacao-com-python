@@ -1,16 +1,30 @@
 """
-modules/util.py - Funções utilitárias (validações e formatações)
+modules/utils.py - Funções auxiliares para exibir relatórios de vendas, produtos sem estoque e gerar o relatório de fechamento de caixa.
     
 """
 
-from datetime import datetime
 from tabulate import tabulate
-from modules.products import save_products
+from .products import save_products
+from .common import format_currency, get_current_date
+from .constants import (
+    ITEM_TOTAL_INDEX,
+    PRODUCT_ID_INDEX,
+    PRODUCT_NAME_INDEX,
+    PRODUCT_QUANTITY_INDEX,
+)
 
 
 def display_customer_report(customers):
     """
     Exibe o relatório de compras de cada cliente.
+
+    Args:
+        customers (list): Lista de clientes, onde cada cliente é representado
+                          por uma lista de itens, e cada item possui os detalhes
+                          da compra, como ID, nome, quantidade e preço.
+
+    Returns:
+        None
     """
 
     total_sales = 0
@@ -18,31 +32,34 @@ def display_customer_report(customers):
     customer_id = 1
 
     for customer in customers:
-        total_purchase = sum(item[4] for item in customer)
+        total_purchase = sum(item[ITEM_TOTAL_INDEX] for item in customer)
 
-        customer_report.append([f"Cliente {customer_id}", f"R$ {total_purchase:.2f}"])
+        customer_report.append(
+            [f"Cliente {customer_id}", format_currency(total_purchase)]
+        )
         total_sales += total_purchase
         customer_id += 1
 
     print(tabulate(customer_report, headers=["Cliente", "Total"], tablefmt="grid"))
-    print(f"\nTotal de vendas: R$ {total_sales:.2f}")
+    print(f"\nTotal de vendas: {format_currency(total_sales)}")
 
 
 def display_out_of_stock_products(product_list):
     """Exibe os produtos sem estoque."""
 
-    out_of_stock_products = [product for product in product_list if product[2] == 0]
+    out_of_stock_products = [
+        product for product in product_list if product[PRODUCT_QUANTITY_INDEX] == 0
+    ]
     if out_of_stock_products:
         print("\nProdutos sem estoque:")
         for product in out_of_stock_products:
-            print(f"{product[1]} (ID {product[0]})\n")
+            print(f"{product[PRODUCT_NAME_INDEX]} (ID {product[PRODUCT_ID_INDEX]})\n")
 
 
-def displays_report_cash_manager(customers, product_list, csv_file):
+def generate_cashier_report(customers, product_list, csv_file):
     """Exibe o relatório final ao atendente fechar o caixa e grava o arquivo de produtos atualizado."""
 
-    current_date = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
-    print(f"\nFechamento do caixa\nData: {current_date}\n")
+    print(f"\nFechamento do Caixa\nData: {get_current_date()}")
     display_customer_report(customers)
 
     display_out_of_stock_products(product_list)
