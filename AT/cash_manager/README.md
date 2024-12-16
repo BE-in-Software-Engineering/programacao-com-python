@@ -17,7 +17,7 @@ AT/cash_manager/
 │ ├── constants.py # Índices e constantes  
 │ ├── products.py # Manipulação do estoque de produtos  
 │ ├── service.py # Lógica principal do gerenciamento de vendas  
-│ ├── utils.py # Relatórios e cálculos  
+│ ├── utils.py # Relatórios  
 │  
 ├── .gitignore # Arquivos ignorados pelo Git  
 ├── main.py # Arquivo principal do sistema  
